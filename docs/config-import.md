@@ -123,6 +123,28 @@ vendorx/general/api_key:
 
 This is helpful when you've got the same settings across different environments but want to keep one environment ( `X` env) unchanged without showing the exact value in the config file. It's a common scenario, especially when dealing with sensitive data. You really should only keep that kind of info in the environment’s database, not in your GIT repo.
 
+### If-Not-Set Modifier
+
+To conditionally set a configuration value only if it has not been set previously, use the `if-not-set` or `if: not-set` modifier. This is useful for setting initial configuration values for third-party extensions.
+
+For example, this might be the content of your config file:
+
+```
+path/to/config:
+  if-not-set: true
+  default:
+    0: 1
+```
+
+Or
+
+```
+path/to/config:
+  if: not-set
+  default:
+    0: 1
+```
+
 ### Recursive folder setup
 
 If you choose to store your configuration files in subdirectories, e.g. per vendor, the recommended folder setup should look like this:

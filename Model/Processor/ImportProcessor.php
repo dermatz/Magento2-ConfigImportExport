@@ -119,11 +119,35 @@ class ImportProcessor extends AbstractProcessor implements ImportProcessorInterf
                         continue;
                     }
 
+                    if ($this->shouldSkipConfig($configPath, $scopeType, $scopeId, $value)) {
+                        $this->getOutput()->writeln(sprintf('<comment>[%s] [%s] %s => %s</comment>', $scopeType, $scopeId, $configPath, 'SKIPPED'));
+
+                        continue;
+                    }
+
                     $this->configWriter->save($configPath, $value, $scopeType, $scopeId);
                     $this->getOutput()->writeln(sprintf('<comment>[%s] [%s] %s => %s</comment>', $scopeType, $scopeId, $configPath, $value));
                 }
             }
         }
+    }
+
+    /**
+     * @param string $configPath
+     * @param string $scopeType
+     * @param int $scopeId
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    private function shouldSkipConfig($configPath, $scopeType, $scopeId, $value)
+    {
+        if (is_array($value) && (isset($value['if-not-set']) || (isset($value['if']) && $value['if'] === 'not-set'))) {
+            $existingValue = $this->configWriter->get($configPath, $scopeType, $scopeId);
+            return $existingValue !== null;
+        }
+
+        return false;
     }
 
     /**

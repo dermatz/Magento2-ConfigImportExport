@@ -157,4 +157,152 @@ class ImportProcessorTest extends TestCase
         $processor->setReader($readerMock);
         $processor->process();
     }
+
+    /**
+     * @test
+     */
+    public function processWithIfNotSetModifier(): void
+    {
+        $finderMock = $this->getMockBuilder(Finder::class)
+            ->onlyMethods(['find'])
+            ->getMock();
+        $finderMock->expects($this->once())->method('find')->willReturn(['abc.yaml']);
+
+        $parseResult = [
+            'test/config/custom_field_if_not_set' => [
+                'default' => [
+                    0 => [
+                        'if-not-set' => true,
+                        'default' => 1,
+                    ],
+                ],
+            ],
+        ];
+
+        $readerMock = $this->getMockBuilder(YamlReader::class)
+            ->onlyMethods(['parse'])
+            ->getMock();
+        $readerMock->expects($this->once())->method('parse')->willReturn($parseResult);
+
+        $this->scopeValidatorMock->expects($this->once())->method('validate')->willReturn(true);
+        $this->configWriterMock->expects($this->once())->method('save');
+        $this->configWriterMock->expects($this->once())->method('get')->willReturn(null);
+
+        $processor = new ImportProcessor($this->configWriterMock, $this->scopeValidatorMock, $this->scopeConverterMock, []);
+        $processor->setOutput($this->outputMock);
+        $processor->setFinder($finderMock);
+        $processor->setReader($readerMock);
+        $processor->process();
+    }
+
+    /**
+     * @test
+     */
+    public function processWithIfNotSetModifierAndExistingValue(): void
+    {
+        $finderMock = $this->getMockBuilder(Finder::class)
+            ->onlyMethods(['find'])
+            ->getMock();
+        $finderMock->expects($this->once())->method('find')->willReturn(['abc.yaml']);
+
+        $parseResult = [
+            'test/config/custom_field_if_not_set' => [
+                'default' => [
+                    0 => [
+                        'if-not-set' => true,
+                        'default' => 1,
+                    ],
+                ],
+            ],
+        ];
+
+        $readerMock = $this->getMockBuilder(YamlReader::class)
+            ->onlyMethods(['parse'])
+            ->getMock();
+        $readerMock->expects($this->once())->method('parse')->willReturn($parseResult);
+
+        $this->scopeValidatorMock->expects($this->once())->method('validate')->willReturn(true);
+        $this->configWriterMock->expects($this->never())->method('save');
+        $this->configWriterMock->expects($this->once())->method('get')->willReturn('existing_value');
+
+        $processor = new ImportProcessor($this->configWriterMock, $this->scopeValidatorMock, $this->scopeConverterMock, []);
+        $processor->setOutput($this->outputMock);
+        $processor->setFinder($finderMock);
+        $processor->setReader($readerMock);
+        $processor->process();
+    }
+
+    /**
+     * @test
+     */
+    public function processWithIfNotSetModifierAlternativeSyntax(): void
+    {
+        $finderMock = $this->getMockBuilder(Finder::class)
+            ->onlyMethods(['find'])
+            ->getMock();
+        $finderMock->expects($this->once())->method('find')->willReturn(['abc.yaml']);
+
+        $parseResult = [
+            'test/config/custom_field_if_not_set' => [
+                'default' => [
+                    0 => [
+                        'if' => 'not-set',
+                        'default' => 1,
+                    ],
+                ],
+            ],
+        ];
+
+        $readerMock = $this->getMockBuilder(YamlReader::class)
+            ->onlyMethods(['parse'])
+            ->getMock();
+        $readerMock->expects($this->once())->method('parse')->willReturn($parseResult);
+
+        $this->scopeValidatorMock->expects($this->once())->method('validate')->willReturn(true);
+        $this->configWriterMock->expects($this->once())->method('save');
+        $this->configWriterMock->expects($this->once())->method('get')->willReturn(null);
+
+        $processor = new ImportProcessor($this->configWriterMock, $this->scopeValidatorMock, $this->scopeConverterMock, []);
+        $processor->setOutput($this->outputMock);
+        $processor->setFinder($finderMock);
+        $processor->setReader($readerMock);
+        $processor->process();
+    }
+
+    /**
+     * @test
+     */
+    public function processWithIfNotSetModifierAlternativeSyntaxAndExistingValue(): void
+    {
+        $finderMock = $this->getMockBuilder(Finder::class)
+            ->onlyMethods(['find'])
+            ->getMock();
+        $finderMock->expects($this->once())->method('find')->willReturn(['abc.yaml']);
+
+        $parseResult = [
+            'test/config/custom_field_if_not_set' => [
+                'default' => [
+                    0 => [
+                        'if' => 'not-set',
+                        'default' => 1,
+                    ],
+                ],
+            ],
+        ];
+
+        $readerMock = $this->getMockBuilder(YamlReader::class)
+            ->onlyMethods(['parse'])
+            ->getMock();
+        $readerMock->expects($this->once())->method('parse')->willReturn($parseResult);
+
+        $this->scopeValidatorMock->expects($this->once())->method('validate')->willReturn(true);
+        $this->configWriterMock->expects($this->never())->method('save');
+        $this->configWriterMock->expects($this->once())->method('get')->willReturn('existing_value');
+
+        $processor = new ImportProcessor($this->configWriterMock, $this->scopeValidatorMock, $this->scopeConverterMock, []);
+        $processor->setOutput($this->outputMock);
+        $processor->setFinder($finderMock);
+        $processor->setReader($readerMock);
+        $processor->process();
+    }
 }
